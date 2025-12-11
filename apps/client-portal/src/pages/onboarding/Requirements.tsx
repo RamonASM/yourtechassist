@@ -85,7 +85,7 @@ export default function OnboardingRequirements() {
 
   const toggleItem = (
     item: string,
-    selected: string[],
+    _selected: string[],
     setSelected: React.Dispatch<React.SetStateAction<string[]>>
   ) => {
     setSelected((prev) =>

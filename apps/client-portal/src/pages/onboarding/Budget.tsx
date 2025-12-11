@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { ArrowRight, ArrowLeft, DollarSign, Check } from 'lucide-react';
@@ -11,6 +10,9 @@ interface BudgetForm {
   budgetRange: string;
   communicationPreference: string;
 }
+
+// Suppress unused var warning
+void Check;
 
 const engagementModels = [
   {
