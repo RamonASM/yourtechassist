@@ -1,0 +1,511 @@
+// =============================================================================
+// PRISMA SCHEMA - YourTechAssist Platform
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// COMPANY & USER MODELS
+// =============================================================================
+
+model Company {
+  id               String   @id @default(uuid())
+  name             String
+  industry         String?
+  size             String?  // 1-10, 11-50, 51-200, 200+
+  website          String?
+  stripeCustomerId String?  @unique
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  users          User[]
+  projects       Project[]
+  onboarding     OnboardingData?
+  subscriptions  Subscription[]
+  invoices       Invoice[]
+  paymentMethods PaymentMethod[]
+}
+
+model User {
+  id           String   @id @default(uuid())
+  companyId    String
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         UserRole @default(MEMBER)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  company         Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  projectMembers  ProjectMember[]
+  comments        Comment[]
+  featureRequests FeatureRequest[]
+  activities      ActivityFeed[]
+  notifications   Notification[]
+
+  @@index([companyId])
+  @@index([email])
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model AdminUser {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         AdminRole @default(DEVELOPER)
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+
+  assignedProjects ProjectMember[]
+  comments         Comment[]
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  PROJECT_MANAGER
+  DEVELOPER
+  DESIGNER
+}
+
+// =============================================================================
+// ONBOARDING
+// =============================================================================
+
+model OnboardingData {
+  id        String @id @default(uuid())
+  companyId String @unique
+
+  // Step 2: Business Profile
+  industry         String?
+  companySize      String?
+  revenueRange     String?
+  currentTechStack String?
+
+  // Step 3: Requirements
+  projectTypes       String[] // Array of selected types
+  problemDescription String?
+  keyFeatures        String[] // Array of features
+  integrations       String[] // Systems to integrate
+  targetUsers        String?  // internal, customers, both
+  timeline           String?  // ASAP, 1-3mo, 3-6mo, flexible
+
+  // Step 4: Budget
+  engagementModel   String? // one-time, licensing, not-sure
+  budgetRange       String?
+  communicationPref String?
+  additionalNotes   String?
+
+  // Calculated
+  suggestedTier String?
+  estimatedMin  Int?
+  estimatedMax  Int?
+
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
+// =============================================================================
+// PROJECT MANAGEMENT
+// =============================================================================
+
+model Project {
+  id            String        @id @default(uuid())
+  companyId     String
+  name          String
+  description   String?
+  status        ProjectStatus @default(DISCOVERY)
+  startDate     DateTime?
+  targetEndDate DateTime?
+  actualEndDate DateTime?
+  totalBudget   Decimal?      @db.Decimal(12, 2)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  company         Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  members         ProjectMember[]
+  milestones      Milestone[]
+  tasks           ProjectTask[]
+  iterations      Iteration[]
+  featureRequests FeatureRequest[]
+  issues          Issue[]
+  files           FileAttachment[]
+  comments        Comment[]
+  activities      ActivityFeed[]
+
+  @@index([companyId])
+  @@index([status])
+}
+
+enum ProjectStatus {
+  DISCOVERY
+  PLANNING
+  DESIGN
+  DEVELOPMENT
+  TESTING
+  LAUNCH
+  MAINTENANCE
+  COMPLETED
+  ON_HOLD
+  CANCELLED
+}
+
+model ProjectMember {
+  id          String   @id @default(uuid())
+  projectId   String
+  userId      String?
+  adminUserId String?
+  role        String // Lead, Developer, Designer, Client Contact
+  joinedAt    DateTime @default(now())
+
+  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User?      @relation(fields: [userId], references: [id])
+  adminUser AdminUser? @relation(fields: [adminUserId], references: [id])
+
+  @@unique([projectId, userId])
+  @@unique([projectId, adminUserId])
+  @@index([projectId])
+}
+
+model Milestone {
+  id            String          @id @default(uuid())
+  projectId     String
+  name          String
+  description   String?
+  status        MilestoneStatus @default(PENDING)
+  dueDate       DateTime?
+  completedAt   DateTime?
+  paymentAmount Decimal?        @db.Decimal(12, 2)
+  paymentStatus PaymentStatus   @default(PENDING)
+  sortOrder     Int             @default(0)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  project Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks   ProjectTask[]
+  invoice Invoice?
+
+  @@index([projectId])
+  @@index([status])
+}
+
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}
+
+enum PaymentStatus {
+  PENDING
+  INVOICED
+  PAID
+  OVERDUE
+  WAIVED
+}
+
+model ProjectTask {
+  id          String     @id @default(uuid())
+  projectId   String
+  milestoneId String?
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  priority    Priority   @default(MEDIUM)
+  assigneeId  String?
+  dueDate     DateTime?
+  completedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  milestone Milestone? @relation(fields: [milestoneId], references: [id])
+
+  @@index([projectId])
+  @@index([milestoneId])
+  @@index([status])
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  COMPLETED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model Iteration {
+  id        String   @id @default(uuid())
+  projectId String
+  name      String // "Sprint 1", "Design Review 1"
+  type      String // sprint, design_review, demo
+  startDate DateTime
+  endDate   DateTime
+  status    String   @default("planned") // planned, active, completed
+  demoUrl   String?
+  notes     String?
+  createdAt DateTime @default(now())
+
+  project  Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  feedback IterationFeedback[]
+
+  @@index([projectId])
+}
+
+model IterationFeedback {
+  id          String   @id @default(uuid())
+  iterationId String
+  userId      String
+  rating      Int? // 1-5 satisfaction
+  feedback    String
+  createdAt   DateTime @default(now())
+
+  iteration Iteration @relation(fields: [iterationId], references: [id], onDelete: Cascade)
+
+  @@index([iterationId])
+}
+
+model FeatureRequest {
+  id              String        @id @default(uuid())
+  projectId       String
+  userId          String
+  type            String // feature, enhancement, bug
+  priority        Priority      @default(MEDIUM)
+  title           String
+  description     String
+  status          RequestStatus @default(SUBMITTED)
+  estimatedEffort String?
+  adminNotes      String?
+  resolvedAt      DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  project     Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user        User             @relation(fields: [userId], references: [id])
+  attachments FileAttachment[]
+
+  @@index([projectId])
+  @@index([userId])
+  @@index([status])
+}
+
+enum RequestStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  DECLINED
+}
+
+model Issue {
+  id          String    @id @default(uuid())
+  projectId   String
+  reportedBy  String
+  title       String
+  description String
+  severity    String // low, medium, high, critical
+  status      String    @default("open") // open, investigating, resolved, closed
+  resolvedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  project     Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  attachments FileAttachment[]
+
+  @@index([projectId])
+  @@index([status])
+}
+
+model Comment {
+  id          String   @id @default(uuid())
+  projectId   String
+  userId      String?
+  adminUserId String?
+  content     String
+  parentId    String? // For threading
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project     Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user        User?            @relation(fields: [userId], references: [id])
+  adminUser   AdminUser?       @relation(fields: [adminUserId], references: [id])
+  parent      Comment?         @relation("CommentReplies", fields: [parentId], references: [id])
+  replies     Comment[]        @relation("CommentReplies")
+  attachments FileAttachment[]
+
+  @@index([projectId])
+  @@index([parentId])
+}
+
+model FileAttachment {
+  id               String   @id @default(uuid())
+  projectId        String?
+  featureRequestId String?
+  issueId          String?
+  commentId        String?
+  filename         String
+  originalName     String
+  mimeType         String
+  size             Int
+  url              String
+  uploadedBy       String
+  createdAt        DateTime @default(now())
+
+  project        Project?        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  featureRequest FeatureRequest? @relation(fields: [featureRequestId], references: [id], onDelete: Cascade)
+  issue          Issue?          @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  comment        Comment?        @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+// =============================================================================
+// BILLING & PAYMENTS
+// =============================================================================
+
+model Subscription {
+  id                   String   @id @default(uuid())
+  companyId            String
+  stripeSubscriptionId String   @unique
+  status               String // active, past_due, canceled, etc.
+  plan                 String // starter, launchpad, growth, scale
+  priceId              String
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  cancelAtPeriodEnd    Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([status])
+}
+
+model Invoice {
+  id              String        @id @default(uuid())
+  companyId       String
+  milestoneId     String?       @unique
+  stripeInvoiceId String?       @unique
+  invoiceNumber   String        @unique
+  amount          Decimal       @db.Decimal(12, 2)
+  status          InvoiceStatus @default(DRAFT)
+  dueDate         DateTime?
+  paidAt          DateTime?
+  description     String?
+  lineItems       Json? // Array of line items
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  company   Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  milestone Milestone? @relation(fields: [milestoneId], references: [id])
+  payments  Payment[]
+
+  @@index([companyId])
+  @@index([status])
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+  REFUNDED
+}
+
+model Payment {
+  id                    String    @id @default(uuid())
+  invoiceId             String
+  stripePaymentIntentId String?   @unique
+  amount                Decimal   @db.Decimal(12, 2)
+  status                String // succeeded, pending, failed
+  method                String? // card, bank_transfer, etc.
+  paidAt                DateTime?
+  createdAt             DateTime  @default(now())
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+}
+
+model PaymentMethod {
+  id                    String   @id @default(uuid())
+  companyId             String
+  stripePaymentMethodId String   @unique
+  type                  String // card, bank_account
+  last4                 String?
+  brand                 String? // visa, mastercard, etc.
+  expiryMonth           Int?
+  expiryYear            Int?
+  isDefault             Boolean  @default(false)
+  createdAt             DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+}
+
+// =============================================================================
+// ACTIVITY & NOTIFICATIONS
+// =============================================================================
+
+model ActivityFeed {
+  id         String   @id @default(uuid())
+  projectId  String?
+  companyId  String?
+  userId     String?
+  action     String // created, updated, commented, uploaded, etc.
+  entityType String // project, milestone, task, comment, file
+  entityId   String
+  metadata   Json? // Additional context
+  createdAt  DateTime @default(now())
+
+  project Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User?    @relation(fields: [userId], references: [id])
+
+  @@index([projectId])
+  @@index([companyId])
+  @@index([createdAt])
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String
+  type      String // milestone_due, payment_received, comment_mention, etc.
+  title     String
+  message   String
+  link      String?
+  isRead    Boolean   @default(false)
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
