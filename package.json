@@ -4,24 +4,14 @@
   "private": true,
   "packageManager": "pnpm@8.15.0",
   "scripts": {
-    "dev": "turbo run dev",
-    "dev:marketing": "turbo run dev --filter=@yta/marketing",
-    "dev:portal": "turbo run dev --filter=@yta/client-portal",
-    "dev:api": "turbo run dev --filter=@yta/api",
-    "build": "turbo run build",
-    "build:marketing": "turbo run build --filter=@yta/marketing",
-    "build:portal": "turbo run build --filter=@yta/client-portal",
-    "build:api": "turbo run build --filter=@yta/api",
-    "lint": "turbo run lint",
-    "typecheck": "turbo run typecheck",
-    "clean": "turbo run clean && rm -rf node_modules",
-    "db:generate": "turbo run db:generate --filter=@yta/api",
-    "db:push": "turbo run db:push --filter=@yta/api",
-    "db:migrate": "turbo run db:migrate --filter=@yta/api",
-    "db:seed": "turbo run db:seed --filter=@yta/api"
+    "dev": "pnpm --parallel -r run dev",
+    "build": "pnpm -r run build",
+    "build:marketing": "pnpm --filter @yta/marketing run build",
+    "build:portal": "pnpm --filter @yta/client-portal run build",
+    "build:api": "pnpm --filter @yta/api run build",
+    "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules"
   },
   "devDependencies": {
-    "turbo": "^2.0.0",
     "typescript": "^5.3.0"
   },
   "engines": {
