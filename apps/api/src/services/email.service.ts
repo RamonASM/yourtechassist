@@ -525,15 +525,15 @@ export async function sendEstimateConfirmationToClient(
   clientEmail: string,
   data: EstimateData
 ): Promise<void> {
-  const { answers, estimate } = data;
+  const { answers, estimate, submittedAt } = data;
 
-  // Build solution-focused answers section
+  // Build clean answers section - same labels as team email
   const answerRows = Object.entries(answers)
     .filter(([, value]) => value && (Array.isArray(value) ? value.length > 0 : true))
     .map(([key, value]) => {
-      const label = solutionQuestionLabels[key] || questionLabels[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-      const displayValue = formatAnswerValue(value, true); // Use solution labels
-      return `<tr><td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #374151; width: 45%;">${label}</td><td style="padding: 12px 15px; border-bottom: 1px solid #e5e7eb; color: #4b5563;">${displayValue}</td></tr>`;
+      const label = questionLabels[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      const displayValue = formatAnswerValue(value, false); // Use same labels as team email
+      return `<tr><td style="padding: 12px 15px; border-bottom: 1px solid #f3f4f6; font-weight: 600; color: #374151; width: 40%;">${label}</td><td style="padding: 12px 15px; border-bottom: 1px solid #f3f4f6; color: #4b5563;">${displayValue}</td></tr>`;
     })
     .join('');
 
@@ -544,30 +544,28 @@ export async function sendEstimateConfirmationToClient(
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f9fafb; }
     .container { max-width: 650px; margin: 0 auto; padding: 20px; }
-    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 30px; border-radius: 12px 12px 0 0; text-align: center; }
-    .header h1 { margin: 0 0 10px 0; font-size: 28px; }
-    .header p { margin: 0; opacity: 0.9; font-size: 16px; }
-    .content { background: #fff; padding: 40px 30px; border: 1px solid #e5e7eb; border-top: none; }
-    .intro { font-size: 16px; color: #4b5563; margin-bottom: 30px; }
-    .estimate-card { background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); border-radius: 16px; padding: 30px; margin-bottom: 30px; text-align: center; }
-    .tier-badge { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 10px 24px; border-radius: 25px; font-size: 18px; font-weight: 600; margin-bottom: 15px; }
-    .tier-desc { color: #4b5563; margin: 0 0 25px 0; font-size: 15px; }
-    .estimate-stats { display: flex; justify-content: center; gap: 40px; }
-    .estimate-stat { text-align: center; }
-    .estimate-stat-label { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
-    .estimate-stat-value { font-size: 22px; font-weight: 700; color: #111827; }
-    .section { margin-bottom: 30px; }
-    .section-title { font-size: 14px; font-weight: 600; color: #667eea; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #667eea; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 12px 12px 0 0; }
+    .header h1 { margin: 0 0 10px 0; font-size: 24px; }
+    .header p { margin: 0; opacity: 0.9; }
+    .content { background: #fff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; }
+    .intro { font-size: 15px; color: #4b5563; margin-bottom: 25px; }
+    .estimate-card { background: #f9fafb; border-radius: 12px; padding: 25px; margin-bottom: 25px; }
+    .tier-badge { display: inline-block; background: #667eea; color: white; padding: 6px 16px; border-radius: 20px; font-size: 16px; font-weight: 600; margin-bottom: 10px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; }
+    .stat { background: white; padding: 15px; border-radius: 8px; text-align: center; }
+    .stat-label { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+    .stat-value { font-size: 18px; font-weight: 700; color: #111827; }
+    .section { margin-bottom: 25px; }
+    .section-title { font-size: 14px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 15px; border-bottom: 2px solid #667eea; padding-bottom: 8px; }
     .data-table { width: 100%; border-collapse: collapse; }
-    .next-steps { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #86efac; border-radius: 16px; padding: 25px 30px; margin: 30px 0; }
-    .next-steps h3 { color: #166534; margin: 0 0 20px 0; font-size: 18px; }
-    .next-steps-list { margin: 0; padding: 0; list-style: none; }
-    .next-steps-list li { padding: 12px 0; border-bottom: 1px solid #bbf7d0; color: #166534; display: flex; align-items: flex-start; gap: 12px; }
-    .next-steps-list li:last-child { border-bottom: none; }
-    .step-number { background: #166534; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
-    .cta-section { text-align: center; margin: 35px 0 10px 0; }
-    .cta-button { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px 36px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 16px; }
-    .footer { background: #f9fafb; padding: 25px 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px; text-align: center; color: #6b7280; font-size: 14px; }
+    .list { list-style: none; padding: 0; margin: 0; }
+    .list li { padding: 8px 0; border-bottom: 1px solid #f3f4f6; color: #4b5563; }
+    .list li:last-child { border-bottom: none; }
+    .next-steps { background: #f0fdf4; border: 1px solid #86efac; border-radius: 12px; padding: 20px; margin: 25px 0; }
+    .next-steps h3 { color: #166534; margin: 0 0 15px 0; font-size: 16px; }
+    .next-steps ul { margin: 0; padding-left: 20px; color: #166534; }
+    .next-steps li { margin-bottom: 8px; }
+    .footer { background: #f9fafb; padding: 20px 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px; text-align: center; color: #6b7280; font-size: 14px; }
     .footer a { color: #667eea; text-decoration: none; }
   </style>
 </head>
@@ -575,32 +573,36 @@ export async function sendEstimateConfirmationToClient(
   <div class="container">
     <div class="header">
       <h1>Your Project Estimate</h1>
-      <p>Thank you for sharing your vision with us</p>
+      <p>Submitted ${new Date(submittedAt).toLocaleString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</p>
     </div>
 
     <div class="content">
       <p class="intro">
-        We're excited about the opportunity to partner with you. Based on what you've shared, we've put together a summary of the value and outcomes you can expect from this investment. Here's how we'll help transform your business:
+        Thank you for taking the time to share your project details with us. Here's a copy of your estimate for your records.
       </p>
 
       <div class="estimate-card">
-        <span class="tier-badge">${estimate.tier} Solution</span>
-        <p class="tier-desc">${estimate.tierDescription || 'A solution tailored to your unique needs'}</p>
+        <span class="tier-badge">${estimate.tier} Tier</span>
+        <p style="margin: 10px 0 0 0; color: #4b5563; font-size: 15px;">${estimate.tierDescription || ''}</p>
 
-        <div class="estimate-stats">
-          <div class="estimate-stat">
-            <div class="estimate-stat-label">Estimated Investment</div>
-            <div class="estimate-stat-value">$${estimate.priceRange.min.toLocaleString()} - $${estimate.priceRange.max.toLocaleString()}</div>
+        <div class="stats-grid">
+          <div class="stat">
+            <div class="stat-label">Investment Range</div>
+            <div class="stat-value">$${estimate.priceRange.min.toLocaleString()} - $${estimate.priceRange.max.toLocaleString()}</div>
           </div>
-          <div class="estimate-stat">
-            <div class="estimate-stat-label">Estimated Timeline</div>
-            <div class="estimate-stat-value">${estimate.timelineWeeks.min} - ${estimate.timelineWeeks.max} weeks</div>
+          <div class="stat">
+            <div class="stat-label">Timeline</div>
+            <div class="stat-value">${estimate.timelineWeeks.min} - ${estimate.timelineWeeks.max} weeks</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Fit Score</div>
+            <div class="stat-value">${estimate.fitScore}%</div>
           </div>
         </div>
       </div>
 
       <div class="section">
-        <div class="section-title">The Business Value You'll Receive</div>
+        <div class="section-title">Your Responses</div>
         <table class="data-table">
           ${answerRows}
         </table>
@@ -608,38 +610,34 @@ export async function sendEstimateConfirmationToClient(
 
       ${estimate.keyFeatures.length > 0 ? `
       <div class="section">
-        <div class="section-title">Key Capabilities Driving Your Results</div>
-        <ul style="margin: 0; padding-left: 20px; color: #4b5563;">
-          ${estimate.keyFeatures.map(f => `<li style="margin-bottom: 8px;">${f}</li>`).join('')}
+        <div class="section-title">Key Features</div>
+        <ul class="list">
+          ${estimate.keyFeatures.map(f => `<li>${f}</li>`).join('')}
+        </ul>
+      </div>
+      ` : ''}
+
+      ${estimate.recommendations.length > 0 ? `
+      <div class="section">
+        <div class="section-title">Recommendations</div>
+        <ul class="list">
+          ${estimate.recommendations.map(r => `<li>${r}</li>`).join('')}
         </ul>
       </div>
       ` : ''}
 
       <div class="next-steps">
         <h3>What Happens Next?</h3>
-        <ul class="next-steps-list">
-          <li>
-            <span class="step-number">1</span>
-            <div><strong>Team Review</strong> - Our team is reviewing your project details and will reach out within 24 hours</div>
-          </li>
-          <li>
-            <span class="step-number">2</span>
-            <div><strong>Care Call</strong> - We'll schedule a Google Meet to learn more about your goals and answer your questions</div>
-          </li>
-          <li>
-            <span class="step-number">3</span>
-            <div><strong>Detailed Proposal</strong> - Within 3-5 business days after our call, you'll receive a comprehensive proposal</div>
-          </li>
+        <ul>
+          <li>Our team is reviewing your submission and will reach out shortly</li>
+          <li>We'll schedule a Care Call via Google Meet to learn more about your goals</li>
+          <li>After our call, you'll receive a detailed proposal within 3-5 business days</li>
         </ul>
       </div>
 
-      <p style="font-size: 15px; color: #6b7280; text-align: center; margin: 25px 0;">
-        This estimate is based on the information you provided. During our Care Call, we'll refine the scope together to ensure we deliver exactly what you need.
+      <p style="font-size: 14px; color: #6b7280; margin: 20px 0 0 0;">
+        This is an initial estimate based on the information you provided. We'll refine the details together during our call.
       </p>
-
-      <div class="cta-section">
-        <a href="https://yourtechassist.us/contact" class="cta-button">Have Questions? Let's Talk</a>
-      </div>
     </div>
 
     <div class="footer">
