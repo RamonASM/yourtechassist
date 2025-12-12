@@ -7,8 +7,7 @@ import { clsx } from 'clsx';
 const tiers = [
   {
     name: 'Starter',
-    oneTime: { min: 2000, max: 12000 },
-    monthly: { min: 500, max: 1000 },
+    investment: 'Starting at $5K',
     description: 'Perfect for landing pages, simple tools, and quick wins that deliver immediate value.',
     features: [
       'Landing pages & marketing sites',
@@ -23,8 +22,7 @@ const tiers = [
   },
   {
     name: 'Launchpad',
-    oneTime: { min: 25000, max: 50000 },
-    monthly: { min: 1500, max: 2500 },
+    investment: 'Starting at $25K',
     description: 'Ideal for MVPs, single-purpose applications, and startups validating their ideas.',
     features: [
       'MVP development',
@@ -39,8 +37,7 @@ const tiers = [
   },
   {
     name: 'Growth',
-    oneTime: { min: 75000, max: 150000 },
-    monthly: { min: 3500, max: 6000 },
+    investment: 'Starting at $75K',
     description: 'For multi-feature applications and growing teams that need robust solutions.',
     features: [
       'Multi-feature applications',
@@ -54,9 +51,8 @@ const tiers = [
     cta: 'Scale Up',
   },
   {
-    name: 'Scale',
-    oneTime: { min: 150000, max: 500000 },
-    monthly: { min: 8000, max: 15000 },
+    name: 'Enterprise',
+    investment: 'Custom Quote',
     description: 'Enterprise platforms with complex requirements and mission-critical operations.',
     features: [
       'Enterprise platforms',
@@ -95,7 +91,6 @@ const faqs = [
 ];
 
 export default function PricingPage() {
-  const [billingType, setBillingType] = useState<'one-time' | 'monthly'>('one-time');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
@@ -103,39 +98,13 @@ export default function PricingPage() {
       {/* Hero */}
       <section className="section gradient-bg">
         <div className="container-wide text-center">
-          <span className="badge-primary mb-4">Transparent Pricing</span>
+          <span className="badge-primary mb-4">Investment-Level Quality</span>
           <h1 className="heading-1 text-gray-900 mb-4">
-            Pricing That Makes Sense
+            Premium Software, Built Right
           </h1>
-          <p className="text-lead max-w-2xl mx-auto mb-8">
-            Choose between a one-time build or ongoing licensing. Both options include quality development, dedicated support, and transparent communication.
+          <p className="text-lead max-w-2xl mx-auto">
+            We build custom software that delivers real ROI. Our solutions are designed to grow with your business and pay for themselves many times over.
           </p>
-
-          {/* Billing Toggle */}
-          <div className="inline-flex items-center gap-2 p-1 bg-gray-100 rounded-lg">
-            <button
-              onClick={() => setBillingType('one-time')}
-              className={clsx(
-                'px-4 py-2 rounded-md text-sm font-medium transition-all',
-                billingType === 'one-time'
-                  ? 'bg-white text-gray-900 shadow'
-                  : 'text-gray-600 hover:text-gray-900'
-              )}
-            >
-              One-Time Build
-            </button>
-            <button
-              onClick={() => setBillingType('monthly')}
-              className={clsx(
-                'px-4 py-2 rounded-md text-sm font-medium transition-all',
-                billingType === 'monthly'
-                  ? 'bg-white text-gray-900 shadow'
-                  : 'text-gray-600 hover:text-gray-900'
-              )}
-            >
-              Monthly License
-            </button>
-          </div>
         </div>
       </section>
 
@@ -168,21 +137,10 @@ export default function PricingPage() {
                 <h3 className="font-bold text-lg text-gray-900 mb-2">{tier.name}</h3>
 
                 <div className="mb-4">
-                  {billingType === 'one-time' ? (
-                    <>
-                      <div className="text-3xl font-bold text-gray-900">
-                        ${tier.oneTime.min.toLocaleString()} - ${tier.oneTime.max.toLocaleString()}
-                      </div>
-                      <div className="text-sm text-gray-500">one-time investment</div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="text-3xl font-bold text-primary-600">
-                        ${tier.monthly.min.toLocaleString()} - ${tier.monthly.max.toLocaleString()}
-                      </div>
-                      <div className="text-sm text-gray-500">per month</div>
-                    </>
-                  )}
+                  <div className="text-2xl font-bold text-gray-900">
+                    {tier.investment}
+                  </div>
+                  <div className="text-sm text-gray-500">project investment</div>
                 </div>
 
                 <p className="text-sm text-gray-600 mb-6">{tier.description}</p>
@@ -275,15 +233,20 @@ export default function PricingPage() {
       <section className="section gradient-bg">
         <div className="container-narrow text-center">
           <h2 className="heading-3 text-gray-900 mb-4">
-            Not Sure Which Plan is Right?
+            Not Sure What You Need?
           </h2>
           <p className="text-lead mb-8">
-            Let's discuss your project. We'll recommend the best approach based on your specific needs and goals.
+            Use our project estimator to get a personalized recommendation based on your goals and challenges.
           </p>
-          <Link to="/contact" className="btn-primary btn-lg">
-            Get a Custom Quote
-            <ArrowRight className="w-5 h-5" />
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/estimate" className="btn-primary btn-lg">
+              Get Your Estimate
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+            <Link to="/contact" className="btn-secondary btn-lg">
+              Talk to Us
+            </Link>
+          </div>
         </div>
       </section>
     </div>

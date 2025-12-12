@@ -49,8 +49,16 @@ export default function Header() {
           ))}
         </div>
 
-        {/* CTA Button */}
-        <div className="hidden md:flex items-center gap-4">
+        {/* CTA Buttons */}
+        <div className="hidden md:flex items-center gap-3">
+          <a
+            href="https://app.yourtechassist.us"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+          >
+            Client Portal
+          </a>
           <Link to="/contact" className="btn-primary btn-sm">
             Get Started
           </Link>
@@ -95,7 +103,16 @@ export default function Header() {
                   {item.name}
                 </Link>
               ))}
-              <div className="pt-4">
+              <div className="pt-4 space-y-2">
+                <a
+                  href="https://app.yourtechassist.us"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full px-4 py-3 rounded-lg text-center text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 border border-gray-200"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Client Portal
+                </a>
                 <Link
                   to="/contact"
                   className="btn-primary w-full"

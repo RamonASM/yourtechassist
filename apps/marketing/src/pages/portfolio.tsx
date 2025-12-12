@@ -18,43 +18,79 @@ const caseStudies = [
     ],
     technologies: ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'TailwindCSS'],
     image: null,
-    demoUrl: 'https://demo.yourtechassist.us',
+    demoUrl: 'https://admin.yourtechassist.us',
     featured: true,
   },
   {
     id: 'client-portal',
     title: 'Self-Service Client Portal',
-    client: 'Brightline Services',
+    client: 'YourTechAssist',
     industry: 'Professional Services',
-    description: 'A customer-facing portal for order management, document sharing, and real-time project tracking.',
-    challenge: 'Clients were constantly calling for status updates, consuming valuable support time.',
-    solution: 'Developed a self-service portal where clients can track orders, upload documents, and communicate with their account managers.',
+    description: 'A customer-facing portal for project management, real-time progress tracking, and seamless communication.',
+    challenge: 'Clients needed visibility into project status and a central place to manage their engagements.',
+    solution: 'Built a self-service portal where clients can track project progress, view milestones, and communicate directly with their team.',
     results: [
-      { label: 'Support calls reduced', value: '60%', icon: TrendingUp },
-      { label: 'Client satisfaction', value: '4.8/5', icon: Users },
-      { label: 'Time to resolution', value: '-50%', icon: Clock },
+      { label: 'Client visibility', value: '100%', icon: TrendingUp },
+      { label: 'Client satisfaction', value: '4.9/5', icon: Users },
+      { label: 'Response time', value: '<24h', icon: Clock },
     ],
-    technologies: ['React', 'Express', 'PostgreSQL', 'Stripe', 'AWS'],
+    technologies: ['React', 'Express', 'PostgreSQL', 'Stripe', 'TailwindCSS'],
     image: null,
-    demoUrl: null,
+    demoUrl: 'https://portal.yourtechassist.us',
     featured: false,
   },
   {
-    id: 'analytics-dashboard',
-    title: 'Executive Analytics Dashboard',
-    client: 'NovaTech Solutions',
-    industry: 'SaaS / Technology',
-    description: 'Beautiful data visualization platform for executive decision-making with real-time KPI tracking.',
-    challenge: 'Leadership was making decisions based on outdated spreadsheets and inconsistent data sources.',
-    solution: 'Created a unified analytics dashboard pulling from multiple systems with real-time updates and automated reporting.',
+    id: 'tozi-secret-santa',
+    title: 'Secret Santa Gift Exchange',
+    client: 'Tozi',
+    industry: 'Consumer / Social',
+    description: 'A fun, easy-to-use platform for organizing Secret Santa gift exchanges with friends, family, or coworkers.',
+    challenge: 'Organizing gift exchanges manually is tedious - tracking participants, setting budgets, and ensuring fair matching.',
+    solution: 'Created an intuitive platform that handles participant management, random matching, wishlists, and budget tracking all in one place.',
     results: [
-      { label: 'Data accuracy', value: '99%', icon: BarChart3 },
-      { label: 'Report generation', value: 'Instant', icon: Clock },
-      { label: 'Data sources unified', value: '12', icon: TrendingUp },
+      { label: 'Groups created', value: '500+', icon: Users },
+      { label: 'Setup time', value: '<2 min', icon: Clock },
+      { label: 'User rating', value: '4.8/5', icon: TrendingUp },
     ],
-    technologies: ['React', 'D3.js', 'Node.js', 'PostgreSQL', 'Redis'],
+    technologies: ['React', 'Node.js', 'PostgreSQL', 'TailwindCSS'],
     image: null,
-    demoUrl: null,
+    demoUrl: 'https://tozi.us',
+    featured: false,
+  },
+  {
+    id: 'storywork-media',
+    title: 'Real Estate Media Showcase',
+    client: 'Aerial Shots Media',
+    industry: 'Real Estate / Media',
+    description: 'A beautiful portfolio and content management platform for showcasing real estate photography and videography work.',
+    challenge: 'Needed a professional way to display media work and attract high-end real estate clients.',
+    solution: 'Built a visually stunning showcase with integrated CMS for easy content updates, property galleries, and service information.',
+    results: [
+      { label: 'Lead increase', value: '45%', icon: TrendingUp },
+      { label: 'Avg. session time', value: '4 min', icon: Clock },
+      { label: 'Properties featured', value: '200+', icon: BarChart3 },
+    ],
+    technologies: ['React', 'Sanity CMS', 'TailwindCSS', 'Framer Motion'],
+    image: null,
+    demoUrl: 'https://storywork.aerialshots.media',
+    featured: false,
+  },
+  {
+    id: 'aerial-hub',
+    title: 'Media Operations Hub',
+    client: 'Aerial Shots Media',
+    industry: 'Real Estate / Media',
+    description: 'A comprehensive operations platform for managing real estate media shoots, scheduling, and client communications.',
+    challenge: 'Managing multiple shoots, photographers, and client requests was becoming overwhelming with manual processes.',
+    solution: 'Developed a centralized hub for booking management, photographer scheduling, asset delivery, and client communications.',
+    results: [
+      { label: 'Booking efficiency', value: '+60%', icon: TrendingUp },
+      { label: 'Response time', value: '<1 hr', icon: Clock },
+      { label: 'Monthly shoots', value: '150+', icon: Users },
+    ],
+    technologies: ['React', 'Node.js', 'PostgreSQL', 'TailwindCSS'],
+    image: null,
+    demoUrl: 'https://hub.aerialshots.media',
     featured: false,
   },
 ];
@@ -172,12 +208,25 @@ export default function PortfolioPage() {
                   ))}
                 </div>
 
-                <div className="flex flex-wrap gap-1">
-                  {project.technologies.slice(0, 4).map((tech) => (
-                    <span key={tech} className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded">
-                      {tech}
-                    </span>
-                  ))}
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap gap-1">
+                    {project.technologies.slice(0, 4).map((tech) => (
+                      <span key={tech} className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                  {project.demoUrl && (
+                    <a
+                      href={project.demoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 font-medium"
+                    >
+                      View Demo
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
                 </div>
               </motion.div>
             ))}

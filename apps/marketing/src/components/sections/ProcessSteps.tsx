@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { MessageSquare, FileText, Rocket } from 'lucide-react';
+import { MessageSquare, FileText, LayoutDashboard, Rocket } from 'lucide-react';
 
 const steps = [
   {
@@ -18,6 +18,13 @@ const steps = [
   },
   {
     number: '03',
+    icon: LayoutDashboard,
+    title: 'Track Progress',
+    description: 'Access your client dashboard to see real-time progress, milestones, and communicate directly with your team.',
+    color: 'from-green-500 to-green-600',
+  },
+  {
+    number: '04',
     icon: Rocket,
     title: 'Build & Launch',
     description: 'Watch your idea come to life with weekly demos, iterative feedback, and a smooth launch experience.',
@@ -43,9 +50,9 @@ export default function ProcessSteps() {
         {/* Steps */}
         <div className="relative">
           {/* Connection line */}
-          <div className="hidden lg:block absolute top-24 left-1/2 -translate-x-1/2 w-2/3 h-0.5 bg-gradient-to-r from-primary-200 via-accent-200 to-purple-200" />
+          <div className="hidden lg:block absolute top-24 left-1/2 -translate-x-1/2 w-3/4 h-0.5 bg-gradient-to-r from-primary-200 via-accent-200 via-green-200 to-purple-200" />
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {steps.map((step, index) => (
               <motion.div
                 key={step.title}

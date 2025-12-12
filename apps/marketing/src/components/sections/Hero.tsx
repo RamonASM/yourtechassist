@@ -60,8 +60,8 @@ export default function Hero() {
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/contact" className="btn-primary btn-lg">
-                Get Your Free Consultation
+              <Link to="/estimate" className="btn-primary btn-lg">
+                Get Your Estimate
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link to="/portfolio" className="btn-secondary btn-lg">
@@ -90,21 +90,67 @@ export default function Hero() {
                   </div>
                   <div className="flex-1 flex justify-center">
                     <div className="px-4 py-1 bg-white rounded-md text-xs text-gray-500">
-                      demo.yourtechassist.us
+                      portal.yourtechassist.us
                     </div>
                   </div>
                 </div>
-                {/* Dashboard content placeholder */}
-                <div className="p-6 space-y-4">
-                  <div className="flex gap-4">
-                    <div className="flex-1 h-24 bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl animate-pulse" />
-                    <div className="flex-1 h-24 bg-gradient-to-br from-accent-50 to-accent-100 rounded-xl animate-pulse" />
-                    <div className="flex-1 h-24 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl animate-pulse" />
+                {/* Dashboard content */}
+                <div className="p-4 space-y-3 bg-gray-50">
+                  {/* Header */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">YT</span>
+                      </div>
+                      <span className="font-semibold text-sm text-gray-900">Client Dashboard</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="w-6 h-6 bg-gray-200 rounded-full" />
+                    </div>
                   </div>
-                  <div className="h-40 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl animate-pulse" />
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="h-20 bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl animate-pulse" />
-                    <div className="h-20 bg-gradient-to-br from-accent-50 to-accent-100 rounded-xl animate-pulse" />
+                  {/* Stats cards */}
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="bg-white rounded-lg p-3 border border-gray-200">
+                      <div className="text-xs text-gray-500">Active Projects</div>
+                      <div className="text-lg font-bold text-gray-900">3</div>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 border border-gray-200">
+                      <div className="text-xs text-gray-500">In Progress</div>
+                      <div className="text-lg font-bold text-primary-600">2</div>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 border border-gray-200">
+                      <div className="text-xs text-gray-500">Completed</div>
+                      <div className="text-lg font-bold text-green-600">12</div>
+                    </div>
+                  </div>
+                  {/* Project list */}
+                  <div className="bg-white rounded-lg border border-gray-200">
+                    <div className="px-3 py-2 border-b border-gray-100">
+                      <span className="text-xs font-medium text-gray-700">Current Projects</span>
+                    </div>
+                    <div className="divide-y divide-gray-100">
+                      <div className="px-3 py-2 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-500 rounded-full" />
+                          <span className="text-xs text-gray-700">Dashboard Redesign</span>
+                        </div>
+                        <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded">75%</span>
+                      </div>
+                      <div className="px-3 py-2 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-yellow-500 rounded-full" />
+                          <span className="text-xs text-gray-700">API Integration</span>
+                        </div>
+                        <span className="text-xs text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded">40%</span>
+                      </div>
+                      <div className="px-3 py-2 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-primary-500 rounded-full" />
+                          <span className="text-xs text-gray-700">Mobile App MVP</span>
+                        </div>
+                        <span className="text-xs text-primary-600 bg-primary-50 px-2 py-0.5 rounded">15%</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

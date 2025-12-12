@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import HomePage from './pages/index';
 import PricingPage from './pages/pricing';
@@ -6,8 +6,17 @@ import ServicesPage from './pages/services';
 import PortfolioPage from './pages/portfolio';
 import AboutPage from './pages/about';
 import ContactPage from './pages/contact';
+import EstimatePage from './pages/estimate';
 
 function App() {
+  const location = useLocation();
+  const isEstimatePage = location.pathname === '/estimate';
+
+  // Estimate page has its own layout
+  if (isEstimatePage) {
+    return <EstimatePage />;
+  }
+
   return (
     <Layout>
       <Routes>

@@ -6,8 +6,7 @@ import { clsx } from 'clsx';
 const tiers = [
   {
     name: 'Starter',
-    oneTime: '$2k - $12k',
-    monthly: '$500 - $1,000/mo',
+    investment: 'Starting at $5K',
     description: 'Perfect for landing pages, simple tools, and quick wins.',
     features: [
       'Landing pages & marketing sites',
@@ -19,8 +18,7 @@ const tiers = [
   },
   {
     name: 'Launchpad',
-    oneTime: '$25k - $50k',
-    monthly: '$1,500 - $2,500/mo',
+    investment: 'Starting at $25K',
     description: 'Ideal for MVPs, single-purpose apps, and small teams.',
     features: [
       'MVP development',
@@ -32,8 +30,7 @@ const tiers = [
   },
   {
     name: 'Growth',
-    oneTime: '$75k - $150k',
-    monthly: '$3,500 - $6,000/mo',
+    investment: 'Starting at $75K',
     description: 'For multi-feature apps and team collaboration tools.',
     features: [
       'Multi-feature applications',
@@ -44,9 +41,8 @@ const tiers = [
     popular: true,
   },
   {
-    name: 'Scale',
-    oneTime: '$150k - $500k+',
-    monthly: '$8,000 - $15,000+/mo',
+    name: 'Enterprise',
+    investment: 'Custom Quote',
     description: 'Enterprise platforms with complex requirements.',
     features: [
       'Enterprise platforms',
@@ -64,12 +60,12 @@ export default function PricingPreview() {
       <div className="container-wide">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <span className="badge-accent mb-4">Transparent Pricing</span>
+          <span className="badge-accent mb-4">Investment-Level Quality</span>
           <h2 className="heading-2 text-gray-900 mb-4">
-            Choose Your Path to Success
+            Premium Software, Built Right
           </h2>
           <p className="text-lead">
-            Whether you need a one-time build or ongoing licensed software, we have flexible options to fit your needs.
+            We build custom software that delivers real ROI. Every project is tailored to your specific needs and goals.
           </p>
         </div>
 
@@ -104,12 +100,8 @@ export default function PricingPreview() {
 
               {/* Pricing */}
               <div className="mb-4">
-                <div className="text-2xl font-bold text-gray-900">{tier.oneTime}</div>
-                <div className="text-sm text-gray-500">one-time build</div>
-                <div className="mt-2 pt-2 border-t border-gray-100">
-                  <div className="text-lg font-semibold text-primary-600">{tier.monthly}</div>
-                  <div className="text-xs text-gray-500">or licensed monthly</div>
-                </div>
+                <div className="text-xl font-bold text-gray-900">{tier.investment}</div>
+                <div className="text-sm text-gray-500">project investment</div>
               </div>
 
               {/* Description */}
@@ -129,11 +121,16 @@ export default function PricingPreview() {
         </div>
 
         {/* CTA */}
-        <div className="text-center">
-          <Link to="/pricing" className="btn-primary btn-lg">
-            See Full Pricing Details
+        <div className="text-center space-y-4">
+          <Link to="/estimate" className="btn-primary btn-lg">
+            Get Your Estimate
             <ArrowRight className="w-5 h-5" />
           </Link>
+          <p className="text-sm text-gray-500">
+            <Link to="/pricing" className="text-primary-600 hover:text-primary-700">
+              View full pricing details →
+            </Link>
+          </p>
         </div>
       </div>
     </section>

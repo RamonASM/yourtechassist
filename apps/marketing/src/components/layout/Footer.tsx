@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, Linkedin, Twitter, Github } from 'lucide-react';
+import { Mail, Linkedin, Twitter, Github } from 'lucide-react';
 
 const footerLinks = {
   services: [
@@ -17,7 +17,6 @@ const footerLinks = {
     { name: 'Contact', href: '/contact' },
   ],
   resources: [
-    { name: 'Blog', href: '/blog' },
     { name: 'Case Studies', href: '/portfolio' },
     { name: 'FAQ', href: '/pricing#faq' },
   ],
@@ -52,17 +51,6 @@ export default function Footer() {
                 <Mail className="w-5 h-5" />
                 hello@yourtechassist.us
               </a>
-              <a
-                href="tel:+1-555-123-4567"
-                className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors"
-              >
-                <Phone className="w-5 h-5" />
-                (555) 123-4567
-              </a>
-              <div className="flex items-center gap-3 text-gray-400">
-                <MapPin className="w-5 h-5" />
-                Remote-First / USA
-              </div>
             </div>
           </div>
 

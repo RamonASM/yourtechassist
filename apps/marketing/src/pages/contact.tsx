@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Calendar, Send, Check } from 'lucide-react';
+import { Send, Check } from 'lucide-react';
 
 const projectTypes = [
   'Custom Software',
@@ -78,74 +78,12 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* Contact Form & Info */}
+      {/* Contact Form */}
       <section className="section bg-white">
-        <div className="container-wide">
-          <div className="grid lg:grid-cols-3 gap-12">
-            {/* Contact Info */}
-            <div className="lg:col-span-1">
-              <h2 className="heading-4 text-gray-900 mb-6">Get in Touch</h2>
-
-              <div className="space-y-6 mb-8">
-                <a
-                  href="mailto:hello@yourtechassist.us"
-                  className="flex items-start gap-4 p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0">
-                    <Mail className="w-5 h-5 text-primary-600" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900">Email Us</div>
-                    <div className="text-gray-600">hello@yourtechassist.us</div>
-                  </div>
-                </a>
-
-                <a
-                  href="tel:+1-555-123-4567"
-                  className="flex items-start gap-4 p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0">
-                    <Phone className="w-5 h-5 text-primary-600" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900">Call Us</div>
-                    <div className="text-gray-600">(555) 123-4567</div>
-                  </div>
-                </a>
-
-                <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-50">
-                  <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-5 h-5 text-primary-600" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900">Location</div>
-                    <div className="text-gray-600">Remote-First / USA</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Schedule Call */}
-              <div className="card p-6 bg-primary-50 border-primary-200">
-                <div className="flex items-center gap-3 mb-3">
-                  <Calendar className="w-5 h-5 text-primary-600" />
-                  <span className="font-semibold text-gray-900">Prefer to talk?</span>
-                </div>
-                <p className="text-gray-600 text-sm mb-4">
-                  Book a free 30-minute discovery call to discuss your project.
-                </p>
-                <a
-                  href="https://calendly.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-primary w-full justify-center"
-                >
-                  Schedule a Call
-                </a>
-              </div>
-            </div>
-
+        <div className="container-narrow">
+          <div>
             {/* Form */}
-            <div className="lg:col-span-2">
+            <div>
               <div className="card p-8">
                 <h2 className="heading-4 text-gray-900 mb-6">Tell Us About Your Project</h2>
 

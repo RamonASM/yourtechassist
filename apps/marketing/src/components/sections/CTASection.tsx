@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, MessageSquare } from 'lucide-react';
+import { ArrowRight, MessageSquare } from 'lucide-react';
 
 export default function CTASection() {
   return (
@@ -21,13 +21,13 @@ export default function CTASection() {
             Ready to Build Something Great?
           </h2>
           <p className="text-lead max-w-2xl mx-auto mb-8">
-            Let's discuss your project. Book a free consultation call and get a custom proposal tailored to your needs. No commitment required.
+            Get a personalized estimate for your project. Answer a few questions and we'll show you what's possible.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/contact" className="btn-primary btn-lg">
-              <Calendar className="w-5 h-5" />
-              Schedule a Call
+            <Link to="/estimate" className="btn-primary btn-lg">
+              Get Your Estimate
+              <ArrowRight className="w-5 h-5" />
             </Link>
             <Link to="/contact" className="btn-secondary btn-lg">
               <MessageSquare className="w-5 h-5" />
@@ -41,7 +41,7 @@ export default function CTASection() {
             <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-600">
               <span className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-green-500" />
-                30-minute discovery call
+                Personalized estimate in minutes
               </span>
               <span className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-green-500" />
