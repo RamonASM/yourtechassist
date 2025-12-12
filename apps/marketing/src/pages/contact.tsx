@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Calendar, MessageSquare, Send, Check } from 'lucide-react';
-import { clsx } from 'clsx';
+import { Mail, Phone, MapPin, Calendar, Send, Check } from 'lucide-react';
 
 const projectTypes = [
   'Custom Software',
