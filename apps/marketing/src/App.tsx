@@ -15,8 +15,8 @@ function App() {
 
   // Scroll to top on route change
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [location.pathname]);
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [location]);
 
   // Estimate page has its own layout
   if (isEstimatePage) {
