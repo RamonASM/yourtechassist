@@ -10,6 +10,7 @@ import companyRoutes from './routes/company.routes.js';
 import projectRoutes from './routes/project.routes.js';
 import billingRoutes from './routes/billing.routes.js';
 import stripeWebhooks from './routes/stripe-webhooks.js';
+import leadsRoutes from './routes/leads.routes.js';
 
 dotenv.config();
 
@@ -20,8 +21,17 @@ const PORT = process.env.PORT || 3001;
 app.use('/api/webhooks/stripe', express.raw({ type: 'application/json' }));
 
 // Middleware
+const allowedOrigins = process.env.CORS_ORIGIN?.split(',') || [
+  'http://localhost:3000',
+  'http://localhost:3002',
+  'https://yourtechassist.us',
+  'https://www.yourtechassist.us',
+  'https://portal.yourtechassist.us',
+  'https://admin.yourtechassist.us',
+  'https://app.yourtechassist.us',
+];
 app.use(cors({
-  origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000', 'http://localhost:3002'],
+  origin: allowedOrigins,
   credentials: true,
 }));
 app.use(express.json());
@@ -37,6 +47,7 @@ app.use('/api/companies', companyRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/billing', billingRoutes);
 app.use('/api/webhooks/stripe', stripeWebhooks);
+app.use('/api/leads', leadsRoutes);
 
 // Error handler
 app.use(errorHandler);

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
@@ -779,14 +779,50 @@ function calculateEstimate(answers: Answers): EstimateResult {
   };
 }
 
+const API_URL = import.meta.env.VITE_API_URL || 'https://api.yourtechassist.us';
+
 export default function EstimatePage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [answers, setAnswers] = useState<Answers>({});
   const [showResults, setShowResults] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const currentQuestions = questions.filter((q) => q.step === currentStep);
   const totalSteps = 6;
   const progress = (currentStep / totalSteps) * 100;
+
+  // Submit estimate data when results are shown
+  useEffect(() => {
+    if (showResults && !submitting) {
+      const estimate = calculateEstimate(answers);
+      const estimateData = {
+        answers,
+        estimate: {
+          tier: estimate.tier,
+          tierDescription: estimate.tierDescription,
+          priceRange: estimate.priceRange,
+          timelineWeeks: estimate.timelineWeeks,
+          phases: estimate.phases,
+          keyFeatures: estimate.keyFeatures,
+          recommendations: estimate.recommendations,
+          fitScore: estimate.fitScore,
+          fitAssessment: estimate.fitAssessment,
+        },
+        submittedAt: new Date().toISOString(),
+      };
+
+      // Store in localStorage for contact page
+      localStorage.setItem('estimateData', JSON.stringify(estimateData));
+
+      // Send to API (fire and forget)
+      setSubmitting(true);
+      fetch(`${API_URL}/api/leads/estimate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(estimateData),
+      }).catch(console.error);
+    }
+  }, [showResults, answers, submitting]);
 
   const handleSingleSelect = (questionId: string, optionId: string) => {
     setAnswers({ ...answers, [questionId]: optionId });
