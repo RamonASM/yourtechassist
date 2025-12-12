@@ -57,15 +57,15 @@ export default function OnboardingBudget() {
   const selectedBudget = watch('budgetRange');
 
   const updateMutation = useMutation({
-    mutationFn: (data: Record<string, unknown>) =>
-      companyApi.updateOnboarding(company!.id, data),
+    mutationFn: (data: BudgetForm) =>
+      companyApi.updateOnboarding(company!.id, data as unknown as Record<string, unknown>),
     onSuccess: () => {
       navigate('/onboarding/review');
     },
   });
 
   const onSubmit = (data: BudgetForm) => {
-    updateMutation.mutate(data as Record<string, unknown>);
+    updateMutation.mutate(data);
   };
 
   return (
