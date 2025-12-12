@@ -1,10 +1,15 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+const FROM_EMAIL = 'YourTechAssist <noreply@yourtechassist.us>';
+const TEAM_EMAIL = 'ramon@aerialshots.media';
 
 interface EstimateData {
   answers: Record<string, string | string[]>;
   estimate: {
     tier: string;
-    tierDescription: string;
+    tierDescription?: string;
     priceRange: { min: number; max: number };
     timelineWeeks: { min: number; max: number };
     phases: string[];
@@ -110,100 +115,12 @@ function getLabel(id: string): string {
   return optionLabels[id] || id;
 }
 
-function formatAnswers(answers: Record<string, string | string[]>): string {
-  const sections: string[] = [];
-
-  // Situation
-  sections.push('📋 SITUATION');
-  sections.push(`Project Type: ${getLabel(answers.project_type as string)}`);
-  sections.push(`Current State: ${getLabel(answers.current_state as string)}`);
-
-  // Pain Points
-  sections.push('\n🔥 PAIN POINTS');
-  const painPoints = answers.pain_points as string[];
-  if (Array.isArray(painPoints)) {
-    painPoints.forEach(p => sections.push(`• ${getLabel(p)}`));
-  }
-  sections.push(`Urgency: ${getLabel(answers.pain_severity as string)}`);
-
-  // Goals
-  sections.push('\n🎯 GOALS');
-  sections.push(`Primary Goal: ${getLabel(answers.primary_goal as string)}`);
-  sections.push(`Success Metric: ${getLabel(answers.success_metric as string)}`);
-
-  // Scope
-  sections.push('\n📊 SCOPE');
-  sections.push(`Users: ${getLabel(answers.user_count as string)}`);
-  const features = answers.features as string[];
-  if (Array.isArray(features) && features.length > 0) {
-    sections.push('Features:');
-    features.forEach(f => sections.push(`• ${getLabel(f)}`));
-  }
-
-  // Timeline & Budget
-  sections.push('\n⏱️ TIMELINE & BUDGET');
-  sections.push(`Timeline: ${getLabel(answers.timeline as string)}`);
-  sections.push(`Budget: ${getLabel(answers.budget_range as string)}`);
-
-  // Readiness
-  sections.push('\n✅ READINESS');
-  sections.push(`Decision Maker: ${getLabel(answers.decision_maker as string)}`);
-  sections.push(`Decision Timeline: ${getLabel(answers.timeline_decision as string)}`);
-
-  return sections.join('\n');
-}
-
-// Create transporter - using environment variables
-function createTransporter() {
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: process.env.SMTP_SECURE === 'true',
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
-}
+// ============================================================================
+// TEAM NOTIFICATION EMAILS
+// ============================================================================
 
 export async function sendEstimateEmail(data: EstimateData): Promise<void> {
-  const transporter = createTransporter();
-
   const { answers, estimate, submittedAt } = data;
-
-  const subject = `🚀 New Project Estimate - ${estimate.tier} Tier`;
-
-  const text = `
-NEW PROJECT ESTIMATE SUBMISSION
-===============================
-Submitted: ${new Date(submittedAt).toLocaleString()}
-
-📈 ESTIMATE RESULTS
--------------------
-Recommended Tier: ${estimate.tier}
-${estimate.tierDescription}
-
-Investment: $${estimate.priceRange.min.toLocaleString()} - $${estimate.priceRange.max.toLocaleString()}
-Timeline: ${estimate.timelineWeeks.min} - ${estimate.timelineWeeks.max} weeks
-Fit Score: ${estimate.fitScore}%
-Assessment: ${estimate.fitAssessment}
-
-📝 QUESTIONNAIRE RESPONSES
---------------------------
-${formatAnswers(answers)}
-
-🔧 KEY FEATURES IDENTIFIED
---------------------------
-${estimate.keyFeatures.map(f => `• ${f}`).join('\n')}
-
-💡 RECOMMENDATIONS
-------------------
-${estimate.recommendations.map(r => `• ${r}`).join('\n')}
-
-📅 PROJECT PHASES
------------------
-${estimate.phases.map((p, i) => `${i + 1}. ${p}`).join('\n')}
-`;
 
   const html = `
 <!DOCTYPE html>
@@ -214,115 +131,82 @@ ${estimate.phases.map((p, i) => `${i + 1}. ${p}`).join('\n')}
     .container { max-width: 600px; margin: 0 auto; padding: 20px; }
     .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 12px 12px 0 0; }
     .header h1 { margin: 0 0 10px 0; font-size: 24px; }
-    .header p { margin: 0; opacity: 0.9; }
     .content { background: #fff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; }
     .section { margin-bottom: 25px; }
     .section-title { font-size: 14px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
     .estimate-card { background: #f9fafb; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
     .tier-badge { display: inline-block; background: #667eea; color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: 600; margin-bottom: 10px; }
-    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
-    .stat { background: white; padding: 15px; border-radius: 8px; }
+    .stats { display: flex; gap: 15px; margin-top: 15px; }
+    .stat { background: white; padding: 15px; border-radius: 8px; flex: 1; }
     .stat-label { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
     .stat-value { font-size: 18px; font-weight: 600; color: #111827; }
-    .fit-bar { height: 8px; background: #e5e7eb; border-radius: 4px; margin-top: 8px; }
-    .fit-fill { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 4px; }
     .list { list-style: none; padding: 0; margin: 0; }
     .list li { padding: 8px 0; border-bottom: 1px solid #f3f4f6; }
     .list li:last-child { border-bottom: none; }
-    .bullet { color: #667eea; margin-right: 8px; }
     .footer { background: #f9fafb; padding: 20px 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px; text-align: center; color: #6b7280; font-size: 14px; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>🚀 New Project Estimate</h1>
+      <h1>New Project Estimate</h1>
       <p>Submitted ${new Date(submittedAt).toLocaleString()}</p>
     </div>
 
     <div class="content">
       <div class="estimate-card">
         <span class="tier-badge">${estimate.tier} Tier</span>
-        <p style="margin: 10px 0 0 0; color: #4b5563;">${estimate.tierDescription}</p>
+        <p style="margin: 10px 0 0 0; color: #4b5563;">${estimate.tierDescription || ''}</p>
 
         <div class="stats">
           <div class="stat">
-            <div class="stat-label">💰 Investment</div>
+            <div class="stat-label">Investment</div>
             <div class="stat-value">$${estimate.priceRange.min.toLocaleString()} - $${estimate.priceRange.max.toLocaleString()}</div>
           </div>
           <div class="stat">
-            <div class="stat-label">📅 Timeline</div>
+            <div class="stat-label">Timeline</div>
             <div class="stat-value">${estimate.timelineWeeks.min} - ${estimate.timelineWeeks.max} weeks</div>
           </div>
-        </div>
-
-        <div style="margin-top: 15px;">
-          <div class="stat-label">Fit Score: ${estimate.fitScore}%</div>
-          <div class="fit-bar">
-            <div class="fit-fill" style="width: ${estimate.fitScore}%;"></div>
+          <div class="stat">
+            <div class="stat-label">Fit Score</div>
+            <div class="stat-value">${estimate.fitScore}%</div>
           </div>
-          <p style="margin: 8px 0 0 0; font-size: 14px; color: #4b5563;">${estimate.fitAssessment}</p>
         </div>
       </div>
 
       <div class="section">
-        <div class="section-title">📋 Situation</div>
+        <div class="section-title">Project Details</div>
         <ul class="list">
           <li><strong>Project Type:</strong> ${getLabel(answers.project_type as string)}</li>
-          <li><strong>Current State:</strong> ${getLabel(answers.current_state as string)}</li>
-        </ul>
-      </div>
-
-      <div class="section">
-        <div class="section-title">🔥 Pain Points</div>
-        <ul class="list">
-          ${Array.isArray(answers.pain_points) ? answers.pain_points.map(p => `<li><span class="bullet">•</span>${getLabel(p)}</li>`).join('') : ''}
-          <li><strong>Urgency:</strong> ${getLabel(answers.pain_severity as string)}</li>
-        </ul>
-      </div>
-
-      <div class="section">
-        <div class="section-title">🎯 Goals</div>
-        <ul class="list">
+          <li><strong>Current State:</strong> ${getLabel(answers.current_state as string) || 'N/A'}</li>
           <li><strong>Primary Goal:</strong> ${getLabel(answers.primary_goal as string)}</li>
-          <li><strong>Success Metric:</strong> ${getLabel(answers.success_metric as string)}</li>
+          <li><strong>Timeline Preference:</strong> ${getLabel(answers.timeline as string) || 'N/A'}</li>
+          <li><strong>Budget Range:</strong> ${getLabel(answers.budget_range as string) || 'N/A'}</li>
         </ul>
       </div>
 
+      ${Array.isArray(answers.pain_points) && answers.pain_points.length > 0 ? `
       <div class="section">
-        <div class="section-title">📊 Scope</div>
+        <div class="section-title">Pain Points</div>
         <ul class="list">
-          <li><strong>Users:</strong> ${getLabel(answers.user_count as string)}</li>
-          ${Array.isArray(answers.features) && answers.features.length > 0 ? `
-          <li><strong>Features:</strong>
-            <ul style="margin-top: 8px; padding-left: 20px;">
-              ${answers.features.map(f => `<li>${getLabel(f)}</li>`).join('')}
-            </ul>
-          </li>
-          ` : ''}
+          ${answers.pain_points.map(p => `<li>${getLabel(p)}</li>`).join('')}
         </ul>
       </div>
+      ` : ''}
 
+      ${Array.isArray(answers.features) && answers.features.length > 0 ? `
       <div class="section">
-        <div class="section-title">⏱️ Timeline & Budget</div>
+        <div class="section-title">Requested Features</div>
         <ul class="list">
-          <li><strong>Timeline:</strong> ${getLabel(answers.timeline as string)}</li>
-          <li><strong>Budget:</strong> ${getLabel(answers.budget_range as string)}</li>
+          ${answers.features.map(f => `<li>${getLabel(f)}</li>`).join('')}
         </ul>
       </div>
+      ` : ''}
 
       <div class="section">
-        <div class="section-title">✅ Readiness</div>
+        <div class="section-title">Recommendations</div>
         <ul class="list">
-          <li><strong>Decision Maker:</strong> ${getLabel(answers.decision_maker as string)}</li>
-          <li><strong>Decision Timeline:</strong> ${getLabel(answers.timeline_decision as string)}</li>
-        </ul>
-      </div>
-
-      <div class="section">
-        <div class="section-title">💡 Recommendations</div>
-        <ul class="list">
-          ${estimate.recommendations.map(r => `<li><span class="bullet">•</span>${r}</li>`).join('')}
+          ${estimate.recommendations.map(r => `<li>${r}</li>`).join('')}
         </ul>
       </div>
     </div>
@@ -335,65 +219,16 @@ ${estimate.phases.map((p, i) => `${i + 1}. ${p}`).join('\n')}
 </html>
 `;
 
-  await transporter.sendMail({
-    from: process.env.SMTP_FROM || 'noreply@yourtechassist.us',
-    to: 'ramon@aerialshots.media',
-    subject,
-    text,
+  await resend.emails.send({
+    from: FROM_EMAIL,
+    to: TEAM_EMAIL,
+    subject: `New Project Estimate - ${estimate.tier} Tier ($${estimate.priceRange.min.toLocaleString()}+)`,
     html,
   });
 }
 
 export async function sendContactEmail(data: ContactData): Promise<void> {
-  const transporter = createTransporter();
-
   const { name, email, company, phone, projectType, budget, timeline, message, estimateData } = data;
-
-  const hasEstimate = !!estimateData;
-  const subject = hasEstimate
-    ? `📩 Contact Form - ${name} (Has Estimate: ${estimateData.estimate.tier})`
-    : `📩 Contact Form - ${name}`;
-
-  let estimateSection = '';
-  if (hasEstimate) {
-    estimateSection = `
-
-📈 PREVIOUS ESTIMATE DATA
--------------------------
-Tier: ${estimateData.estimate.tier}
-Investment: $${estimateData.estimate.priceRange.min.toLocaleString()} - $${estimateData.estimate.priceRange.max.toLocaleString()}
-Timeline: ${estimateData.estimate.timelineWeeks.min} - ${estimateData.estimate.timelineWeeks.max} weeks
-Fit Score: ${estimateData.estimate.fitScore}%
-
-Key Pain Points:
-${Array.isArray(estimateData.answers.pain_points) ? estimateData.answers.pain_points.map(p => `• ${getLabel(p)}`).join('\n') : 'N/A'}
-
-Primary Goal: ${getLabel(estimateData.answers.primary_goal as string)}
-`;
-  }
-
-  const text = `
-NEW CONTACT FORM SUBMISSION
-===========================
-
-👤 CONTACT INFORMATION
----------------------
-Name: ${name}
-Email: ${email}
-Company: ${company || 'Not provided'}
-Phone: ${phone || 'Not provided'}
-
-📋 PROJECT DETAILS
-------------------
-Project Type: ${projectType}
-Budget: ${budget || 'Not specified'}
-Timeline: ${timeline || 'Not specified'}
-
-💬 MESSAGE
-----------
-${message}
-${estimateSection}
-`;
 
   const html = `
 <!DOCTYPE html>
@@ -418,15 +253,15 @@ ${estimateSection}
 <body>
   <div class="container">
     <div class="header">
-      <h1>📩 New Contact Form Submission</h1>
+      <h1>New Contact Form Submission</h1>
       <p>${name}${company ? ` from ${company}` : ''}</p>
     </div>
 
     <div class="content">
-      ${hasEstimate ? '<span class="estimate-badge">✓ Has Estimate Data</span>' : ''}
+      ${estimateData ? '<span class="estimate-badge">Has Estimate Data</span>' : ''}
 
       <div class="section">
-        <div class="section-title">👤 Contact Information</div>
+        <div class="section-title">Contact Information</div>
         <div class="info-row"><span class="info-label">Name:</span> ${name}</div>
         <div class="info-row"><span class="info-label">Email:</span> <a href="mailto:${email}">${email}</a></div>
         ${company ? `<div class="info-row"><span class="info-label">Company:</span> ${company}</div>` : ''}
@@ -434,33 +269,25 @@ ${estimateSection}
       </div>
 
       <div class="section">
-        <div class="section-title">📋 Project Details</div>
+        <div class="section-title">Project Details</div>
         <div class="info-row"><span class="info-label">Type:</span> ${projectType}</div>
         ${budget ? `<div class="info-row"><span class="info-label">Budget:</span> ${budget}</div>` : ''}
         ${timeline ? `<div class="info-row"><span class="info-label">Timeline:</span> ${timeline}</div>` : ''}
       </div>
 
       <div class="section">
-        <div class="section-title">💬 Message</div>
+        <div class="section-title">Message</div>
         <div class="message-box">${message}</div>
       </div>
 
-      ${hasEstimate ? `
+      ${estimateData ? `
       <div class="estimate-card">
-        <div class="section-title">📈 Previous Estimate Data</div>
+        <div class="section-title">Previous Estimate Data</div>
         <div class="info-row"><span class="info-label">Tier:</span> ${estimateData.estimate.tier}</div>
         <div class="info-row"><span class="info-label">Investment:</span> $${estimateData.estimate.priceRange.min.toLocaleString()} - $${estimateData.estimate.priceRange.max.toLocaleString()}</div>
         <div class="info-row"><span class="info-label">Timeline:</span> ${estimateData.estimate.timelineWeeks.min} - ${estimateData.estimate.timelineWeeks.max} weeks</div>
         <div class="info-row"><span class="info-label">Fit Score:</span> ${estimateData.estimate.fitScore}%</div>
         <div class="info-row"><span class="info-label">Primary Goal:</span> ${getLabel(estimateData.answers.primary_goal as string)}</div>
-        ${Array.isArray(estimateData.answers.pain_points) ? `
-        <div class="info-row">
-          <span class="info-label">Pain Points:</span>
-          <ul style="margin: 8px 0 0 0; padding-left: 20px;">
-            ${estimateData.answers.pain_points.map(p => `<li>${getLabel(p)}</li>`).join('')}
-          </ul>
-        </div>
-        ` : ''}
       </div>
       ` : ''}
     </div>
@@ -473,11 +300,184 @@ ${estimateSection}
 </html>
 `;
 
-  await transporter.sendMail({
-    from: process.env.SMTP_FROM || 'noreply@yourtechassist.us',
-    to: 'ramon@aerialshots.media',
-    subject,
-    text,
+  await resend.emails.send({
+    from: FROM_EMAIL,
+    to: TEAM_EMAIL,
+    subject: `New Contact: ${name}${estimateData ? ` (${estimateData.estimate.tier} Tier)` : ''} - ${projectType}`,
+    html,
+  });
+}
+
+// ============================================================================
+// CLIENT CONFIRMATION EMAILS
+// ============================================================================
+
+export async function sendEstimateConfirmationToClient(
+  clientEmail: string,
+  data: EstimateData
+): Promise<void> {
+  const { estimate } = data;
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f9fafb; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 30px; border-radius: 12px 12px 0 0; text-align: center; }
+    .header h1 { margin: 0 0 10px 0; font-size: 28px; }
+    .header p { margin: 0; opacity: 0.9; font-size: 16px; }
+    .content { background: #fff; padding: 40px 30px; border: 1px solid #e5e7eb; border-top: none; }
+    .estimate-summary { background: #f9fafb; border-radius: 12px; padding: 25px; margin: 25px 0; text-align: center; }
+    .tier-badge { display: inline-block; background: #667eea; color: white; padding: 8px 20px; border-radius: 25px; font-size: 16px; font-weight: 600; margin-bottom: 15px; }
+    .estimate-details { display: flex; justify-content: center; gap: 30px; margin-top: 20px; }
+    .estimate-item { text-align: center; }
+    .estimate-label { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
+    .estimate-value { font-size: 20px; font-weight: 600; color: #111827; margin-top: 5px; }
+    .next-steps { background: #f0fdf4; border: 1px solid #86efac; border-radius: 12px; padding: 25px; margin: 25px 0; }
+    .next-steps h3 { color: #166534; margin: 0 0 15px 0; font-size: 18px; }
+    .next-steps ul { margin: 0; padding-left: 20px; color: #166534; }
+    .next-steps li { margin-bottom: 10px; }
+    .cta-section { text-align: center; margin: 30px 0; }
+    .cta-button { display: inline-block; background: #667eea; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; }
+    .footer { background: #f9fafb; padding: 25px 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px; text-align: center; color: #6b7280; font-size: 14px; }
+    .footer a { color: #667eea; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Thank You!</h1>
+      <p>We've received your project estimate request</p>
+    </div>
+
+    <div class="content">
+      <p style="font-size: 16px; color: #4b5563;">
+        Thank you for taking the time to share your project details with us. We're excited to learn more about your goals and how we can help bring your vision to life.
+      </p>
+
+      <div class="estimate-summary">
+        <span class="tier-badge">${estimate.tier} Tier</span>
+        <p style="color: #4b5563; margin: 10px 0 0 0;">${estimate.tierDescription || 'A solution tailored to your needs'}</p>
+
+        <div class="estimate-details">
+          <div class="estimate-item">
+            <div class="estimate-label">Estimated Investment</div>
+            <div class="estimate-value">$${estimate.priceRange.min.toLocaleString()} - $${estimate.priceRange.max.toLocaleString()}</div>
+          </div>
+          <div class="estimate-item">
+            <div class="estimate-label">Estimated Timeline</div>
+            <div class="estimate-value">${estimate.timelineWeeks.min} - ${estimate.timelineWeeks.max} weeks</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="next-steps">
+        <h3>What Happens Next?</h3>
+        <ul>
+          <li><strong>Our team is reviewing your submission</strong> and will reach out shortly</li>
+          <li><strong>We'll schedule a Care Call</strong> via Google Meet to learn more about your goals</li>
+          <li><strong>You'll receive a detailed proposal</strong> within 3-5 business days after our call</li>
+        </ul>
+      </div>
+
+      <p style="font-size: 16px; color: #4b5563;">
+        This is an initial estimate based on the information you provided. During our Care Call, we'll dive deeper into your specific needs and refine the scope together.
+      </p>
+
+      <div class="cta-section">
+        <a href="https://yourtechassist.us/contact" class="cta-button">Have Questions? Contact Us</a>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p style="margin: 0 0 10px 0;"><strong>YourTechAssist</strong></p>
+      <p style="margin: 0;">Custom software solutions for growing businesses</p>
+      <p style="margin: 15px 0 0 0;"><a href="https://yourtechassist.us">yourtechassist.us</a></p>
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+  await resend.emails.send({
+    from: FROM_EMAIL,
+    to: clientEmail,
+    subject: `Your Project Estimate - ${estimate.tier} Tier | YourTechAssist`,
+    html,
+  });
+}
+
+export async function sendContactConfirmationToClient(
+  clientEmail: string,
+  clientName: string,
+  hasEstimate: boolean
+): Promise<void> {
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f9fafb; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 30px; border-radius: 12px 12px 0 0; text-align: center; }
+    .header h1 { margin: 0 0 10px 0; font-size: 28px; }
+    .header p { margin: 0; opacity: 0.9; font-size: 16px; }
+    .content { background: #fff; padding: 40px 30px; border: 1px solid #e5e7eb; border-top: none; }
+    .next-steps { background: #f0fdf4; border: 1px solid #86efac; border-radius: 12px; padding: 25px; margin: 25px 0; }
+    .next-steps h3 { color: #166534; margin: 0 0 15px 0; font-size: 18px; }
+    .next-steps ul { margin: 0; padding-left: 20px; color: #166534; }
+    .next-steps li { margin-bottom: 10px; }
+    .footer { background: #f9fafb; padding: 25px 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px; text-align: center; color: #6b7280; font-size: 14px; }
+    .footer a { color: #667eea; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Message Received!</h1>
+      <p>Thank you for reaching out, ${clientName}</p>
+    </div>
+
+    <div class="content">
+      <p style="font-size: 16px; color: #4b5563;">
+        Thank you for taking the time to contact us${hasEstimate ? ' and sharing your project details' : ''}. We appreciate your interest in working with YourTechAssist.
+      </p>
+
+      <div class="next-steps">
+        <h3>What Happens Next?</h3>
+        <ul>
+          <li><strong>Our team is reviewing your message</strong> and will respond within 24 hours</li>
+          <li><strong>We'll reach out to schedule a Care Call</strong> via Google Meet to learn more about your goals</li>
+          <li><strong>During the call</strong>, we'll discuss your project in detail and answer any questions</li>
+        </ul>
+      </div>
+
+      <p style="font-size: 16px; color: #4b5563;">
+        We're excited to learn more about your project and explore how we can help you achieve your goals. Talk soon!
+      </p>
+
+      <p style="font-size: 16px; color: #4b5563; margin-top: 30px;">
+        Best regards,<br>
+        <strong>The YourTechAssist Team</strong>
+      </p>
+    </div>
+
+    <div class="footer">
+      <p style="margin: 0 0 10px 0;"><strong>YourTechAssist</strong></p>
+      <p style="margin: 0;">Custom software solutions for growing businesses</p>
+      <p style="margin: 15px 0 0 0;"><a href="https://yourtechassist.us">yourtechassist.us</a></p>
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+  await resend.emails.send({
+    from: FROM_EMAIL,
+    to: clientEmail,
+    subject: `We've Received Your Message | YourTechAssist`,
     html,
   });
 }

@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { sendEstimateEmail, sendContactEmail } from '../services/email.service.js';
+import {
+  sendEstimateEmail,
+  sendContactEmail,
+  sendEstimateConfirmationToClient,
+  sendContactConfirmationToClient,
+} from '../services/email.service.js';
 
 const router = Router();
 
@@ -8,7 +13,7 @@ const router = Router();
  * Receive and email estimate questionnaire data
  */
 router.post('/estimate', async (req, res) => {
-  const { answers, estimate, submittedAt } = req.body;
+  const { answers, estimate, submittedAt, clientEmail } = req.body;
 
   if (!answers || !estimate) {
     return res.status(400).json({ error: 'Missing required fields' });
@@ -21,14 +26,23 @@ router.post('/estimate', async (req, res) => {
   console.log('Timeline:', `${estimate.timelineWeeks?.min} - ${estimate.timelineWeeks?.max} weeks`);
   console.log('Project Type:', answers.project_type);
   console.log('Primary Goal:', answers.primary_goal);
+  console.log('Client Email:', clientEmail || 'Not provided');
   console.log('Submitted:', submittedAt || new Date().toISOString());
-  console.log('Full Data:', JSON.stringify({ answers, estimate }, null, 2));
   console.log('=== END ESTIMATE ===');
 
-  // Send email notification (fire and forget - don't await)
-  sendEstimateEmail({ answers, estimate, submittedAt: submittedAt || new Date().toISOString() })
-    .then(() => console.log('Estimate email sent successfully'))
-    .catch((error) => console.error('Error sending estimate email:', error));
+  const estimateData = { answers, estimate, submittedAt: submittedAt || new Date().toISOString() };
+
+  // Send team notification email (fire and forget)
+  sendEstimateEmail(estimateData)
+    .then(() => console.log('Team estimate email sent successfully'))
+    .catch((error) => console.error('Error sending team estimate email:', error));
+
+  // If client email provided, send confirmation to them too
+  if (clientEmail) {
+    sendEstimateConfirmationToClient(clientEmail, estimateData)
+      .then(() => console.log('Client estimate confirmation sent successfully'))
+      .catch((error) => console.error('Error sending client estimate confirmation:', error));
+  }
 
   // Respond immediately
   res.json({ success: true, message: 'Estimate submitted successfully' });
@@ -61,7 +75,7 @@ router.post('/contact', async (req, res) => {
   }
   console.log('=== END CONTACT ===');
 
-  // Send email notification (fire and forget - don't await)
+  // Send team notification email (fire and forget)
   sendContactEmail({
     name,
     email,
@@ -73,8 +87,13 @@ router.post('/contact', async (req, res) => {
     message,
     estimateData,
   })
-    .then(() => console.log('Contact email sent successfully'))
-    .catch((error) => console.error('Error sending contact email:', error));
+    .then(() => console.log('Team contact email sent successfully'))
+    .catch((error) => console.error('Error sending team contact email:', error));
+
+  // Send confirmation email to client
+  sendContactConfirmationToClient(email, name, !!estimateData)
+    .then(() => console.log('Client contact confirmation sent successfully'))
+    .catch((error) => console.error('Error sending client contact confirmation:', error));
 
   // Respond immediately
   res.json({ success: true, message: 'Contact form submitted successfully' });
