@@ -65,7 +65,7 @@ export default function OnboardingBudget() {
   });
 
   const onSubmit = (data: BudgetForm) => {
-    updateMutation.mutate(data);
+    updateMutation.mutate(data as Record<string, unknown>);
   };
 
   return (

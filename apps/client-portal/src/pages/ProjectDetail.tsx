@@ -21,7 +21,8 @@ type TabType = 'overview' | 'milestones' | 'requests' | 'messages' | 'files';
 export default function ProjectDetail() {
   const { projectId } = useParams<{ projectId: string }>();
   const [activeTab, setActiveTab] = useState<TabType>('overview');
-  const _queryClient = useQueryClient();
+  // queryClient available for cache invalidation
+  void useQueryClient;
 
   const { data: project, isLoading } = useQuery({
     queryKey: ['project', projectId],
