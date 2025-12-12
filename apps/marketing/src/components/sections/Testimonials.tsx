@@ -5,11 +5,11 @@ import { clsx } from 'clsx';
 
 const testimonials = [
   {
-    quote: "YourTechAssist transformed our manual inventory process into an intelligent dashboard that saves us hours every week. The team truly understood our challenges and delivered beyond expectations.",
-    author: "Sarah Chen",
-    role: "Operations Director",
-    company: "Everstory Partners",
-    avatar: null, // Would be an image URL
+    quote: "I love how Tozi keeps everything completely anonymous - no one knows who has who until the big reveal! The dashboard is so simple to use, and the best part? It's in Spanish too, so my parents can finally join our family gift exchange without needing help!",
+    author: "Melody Rubio",
+    role: "Event Organizer",
+    company: "Tozi User",
+    avatar: null,
     rating: 5,
   },
   {
