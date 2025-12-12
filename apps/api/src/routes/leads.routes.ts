@@ -8,22 +8,19 @@ const router = Router();
  * Receive and email estimate questionnaire data
  */
 router.post('/estimate', async (req, res) => {
-  try {
-    const { answers, estimate, submittedAt } = req.body;
+  const { answers, estimate, submittedAt } = req.body;
 
-    if (!answers || !estimate) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    // Send email notification
-    await sendEstimateEmail({ answers, estimate, submittedAt: submittedAt || new Date().toISOString() });
-
-    res.json({ success: true, message: 'Estimate submitted successfully' });
-  } catch (error) {
-    console.error('Error processing estimate:', error);
-    // Don't fail the request if email fails - just log it
-    res.json({ success: true, message: 'Estimate received', emailSent: false });
+  if (!answers || !estimate) {
+    return res.status(400).json({ error: 'Missing required fields' });
   }
+
+  // Send email notification (fire and forget - don't await)
+  sendEstimateEmail({ answers, estimate, submittedAt: submittedAt || new Date().toISOString() })
+    .then(() => console.log('Estimate email sent successfully'))
+    .catch((error) => console.error('Error sending estimate email:', error));
+
+  // Respond immediately
+  res.json({ success: true, message: 'Estimate submitted successfully' });
 });
 
 /**
@@ -31,32 +28,29 @@ router.post('/estimate', async (req, res) => {
  * Receive contact form submission with optional estimate data
  */
 router.post('/contact', async (req, res) => {
-  try {
-    const { name, email, company, phone, projectType, budget, timeline, message, estimateData } = req.body;
+  const { name, email, company, phone, projectType, budget, timeline, message, estimateData } = req.body;
 
-    if (!name || !email || !projectType || !message) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    // Send email notification
-    await sendContactEmail({
-      name,
-      email,
-      company,
-      phone,
-      projectType,
-      budget,
-      timeline,
-      message,
-      estimateData,
-    });
-
-    res.json({ success: true, message: 'Contact form submitted successfully' });
-  } catch (error) {
-    console.error('Error processing contact form:', error);
-    // Don't fail the request if email fails
-    res.json({ success: true, message: 'Contact received', emailSent: false });
+  if (!name || !email || !projectType || !message) {
+    return res.status(400).json({ error: 'Missing required fields' });
   }
+
+  // Send email notification (fire and forget - don't await)
+  sendContactEmail({
+    name,
+    email,
+    company,
+    phone,
+    projectType,
+    budget,
+    timeline,
+    message,
+    estimateData,
+  })
+    .then(() => console.log('Contact email sent successfully'))
+    .catch((error) => console.error('Error sending contact email:', error));
+
+  // Respond immediately
+  res.json({ success: true, message: 'Contact form submitted successfully' });
 });
 
 export default router;
