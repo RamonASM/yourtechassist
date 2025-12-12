@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Mail, Linkedin, Twitter, Github } from 'lucide-react';
+import { Linkedin, Twitter, Github } from 'lucide-react';
 
 const footerLinks = {
   services: [
@@ -43,15 +43,6 @@ export default function Footer() {
             <p className="text-gray-400 mb-6 max-w-sm">
               Custom software solutions for growing businesses. We listen to your unique challenges and build solutions that drive real results.
             </p>
-            <div className="space-y-3">
-              <a
-                href="mailto:hello@yourtechassist.us"
-                className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors"
-              >
-                <Mail className="w-5 h-5" />
-                hello@yourtechassist.us
-              </a>
-            </div>
           </div>
 
           {/* Services */}

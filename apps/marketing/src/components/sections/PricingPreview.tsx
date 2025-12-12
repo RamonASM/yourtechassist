@@ -6,49 +6,40 @@ import { clsx } from 'clsx';
 const tiers = [
   {
     name: 'Starter',
+    tagline: 'Launch & Validate',
     investment: 'Starting at $5K',
-    description: 'Perfect for landing pages, simple tools, and quick wins.',
+    description: 'MVPs, landing pages, and tools that prove your concept.',
     features: [
-      'Landing pages & marketing sites',
-      'Simple CRUD applications',
-      'Feature additions',
-      'Maintenance retainers',
-    ],
-    popular: false,
-  },
-  {
-    name: 'Launchpad',
-    investment: 'Starting at $25K',
-    description: 'Ideal for MVPs, single-purpose apps, and small teams.',
-    features: [
-      'MVP development',
-      'Single-purpose tools',
+      'Simple applications & tools',
       'Basic integrations',
-      'Standard support',
+      'UI/UX design included',
+      'Full source code ownership',
     ],
     popular: false,
   },
   {
     name: 'Growth',
-    investment: 'Starting at $75K',
-    description: 'For multi-feature apps and team collaboration tools.',
+    tagline: 'Scale & Optimize',
+    investment: 'Starting at $25K',
+    description: 'Replace multiple tools with one unified platform.',
     features: [
       'Multi-feature applications',
-      'Team collaboration tools',
       'Advanced integrations',
+      'Custom analytics dashboard',
       'Priority support',
     ],
     popular: true,
   },
   {
     name: 'Enterprise',
+    tagline: 'Transform & Dominate',
     investment: 'Custom Quote',
-    description: 'Enterprise platforms with complex requirements.',
+    description: 'Mission-critical platforms for complex requirements.',
     features: [
-      'Enterprise platforms',
-      'Complex integrations',
-      'Custom infrastructure',
-      'Dedicated team',
+      'Enterprise-grade platforms',
+      'Unlimited integrations',
+      'Dedicated dev team',
+      'SLA guarantees',
     ],
     popular: false,
   },
@@ -70,7 +61,7 @@ export default function PricingPreview() {
         </div>
 
         {/* Pricing Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="grid md:grid-cols-3 gap-6 mb-12">
           {tiers.map((tier, index) => (
             <motion.div
               key={tier.name}
@@ -96,12 +87,15 @@ export default function PricingPreview() {
               )}
 
               {/* Tier name */}
-              <h3 className="font-bold text-lg text-gray-900 mb-2">{tier.name}</h3>
+              <div className="mb-4">
+                <h3 className="font-bold text-lg text-gray-900">{tier.name}</h3>
+                <p className="text-primary-600 text-sm font-medium">{tier.tagline}</p>
+              </div>
 
               {/* Pricing */}
               <div className="mb-4">
-                <div className="text-xl font-bold text-gray-900">{tier.investment}</div>
-                <div className="text-sm text-gray-500">project investment</div>
+                <div className="text-2xl font-bold text-gray-900">{tier.investment}</div>
+                <div className="text-sm text-gray-500">one-time or monthly licensing</div>
               </div>
 
               {/* Description */}
