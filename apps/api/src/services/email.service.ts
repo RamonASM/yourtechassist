@@ -608,6 +608,15 @@ export async function sendEstimateConfirmationToClient(
         </table>
       </div>
 
+      ${estimate.phases.length > 0 ? `
+      <div class="section">
+        <div class="section-title">Recommended Phases</div>
+        <ul class="list">
+          ${estimate.phases.map((p, i) => `<li><strong>Phase ${i + 1}:</strong> ${p}</li>`).join('')}
+        </ul>
+      </div>
+      ` : ''}
+
       ${estimate.keyFeatures.length > 0 ? `
       <div class="section">
         <div class="section-title">Key Features</div>
@@ -619,7 +628,7 @@ export async function sendEstimateConfirmationToClient(
 
       ${estimate.recommendations.length > 0 ? `
       <div class="section">
-        <div class="section-title">Recommendations</div>
+        <div class="section-title">System Recommendations</div>
         <ul class="list">
           ${estimate.recommendations.map(r => `<li>${r}</li>`).join('')}
         </ul>
